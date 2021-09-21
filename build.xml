@@ -1,0 +1,37 @@
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="zm-amavis" default="pkg">
+    <import file="../zm-zcs/ant-global.xml" />
+
+    <!-- Property added to have the functionality of passing version as an argument  -->
+    <property name="revision" value="1" />
+    <property name="version"
+              value="${zimbra.buildinfo.majorversion}.${zimbra.buildinfo.minorversion}.${zimbra.buildinfo.microversion}"/>
+    <property name="package"   value="zimbra-amavis"/>
+    <property name="stage.dir" value="build/stage/${package}"/>
+    <property name="confdir"   value="/opt/zimbra/conf"/>
+    <property name="mysqldir"  value="/opt/zimbra/data/amavisd/mysql"/>
+
+    <target name="dist">
+        <mkdir dir="${stage.dir}${confdir}" />
+        <mkdir dir="${stage.dir}${mysqldir}" />
+        <copy todir="${stage.dir}${confdir}"  file="conf/amavisd.conf.in"/>
+        <copy todir="${stage.dir}${confdir}"  file="conf/amavisd/amavisd-custom.conf"/>
+        <copy todir="${stage.dir}${confdir}"  file="conf/dspam.conf.in"/>
+        <copy todir="${stage.dir}${mysqldir}" file="conf/amavisd/mysql/antispamdb.sql"/>
+    </target>
+
+    <target name="jar" />
+
+    <target name="pkg" depends="clean,dist">
+        <exec dir="." executable="../zm-pkg-tool/pkg-build.pl" failonerror="true">
+            <arg value="--pkg-name=${package}"/>
+            <arg value="--pkg-version=${version}"/>
+            <arg value="--pkg-release=${revision}"/>
+            <arg value="--pkg-summary=Zimbra amavis"/>
+            <arg value="--pkg-installs=${confdir}"/>
+        </exec>
+    </target>
+
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+</project>
